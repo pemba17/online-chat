@@ -85,7 +85,7 @@ Username: test2@s6
 Password: test2@s6
 ```
 
-After logging in, the main chat room will appear, showing the online users. In the example below, the users `pemba` and `bidur` are online.
+After logging in, the main chat room will appear, showing the online users. In the example below, the users `test1` and `test2` are online.
 
 ![Test 1 Dashboard](./assets/test1-dashboard.png)
 ![Test 2 Dashboard](./assets/test2-dashboard.png)
