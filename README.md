@@ -100,7 +100,7 @@ Test 1 sent message to Test 2
 Test 2 received message from Test 1
 
 ### Some Screenshots of Group Chat
-To start group chat we need to click on Group Chat hyperlink
+To start group chat we need to click on Group Chat 
 ![Group Chat started from Test1](./assets/group-chat-1.png)
 ![Group Chat started from Test1](./assets/group-chat-2.png)
 
