@@ -141,7 +141,6 @@ def create_message_format(data, tag):
 # it handles whether to send to msg to specific client or public
 async def route_message(target_jid, message):
     if target_jid == 'public':
-        print(message)
         await broadcast(message)
     elif target_jid in active_connections:
         await send_message(active_connections[target_jid]['websocket'], message)
@@ -178,6 +177,7 @@ async def cleanup_user(jid):
         await broadcast_presence()
 
 # Start WebSocket server
+# Please Enter your IP here instead of localhost        
 async def main():
     server = await websockets.serve(handle_client, "localhost", 5555)
     print("WebSocket server started at ws://localhost:5555")
