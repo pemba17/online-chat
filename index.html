@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.2.1/jsencrypt.min.js"></script>
+</head>
+<body>
+    <div>
+        <div id="login-user-form">
+            <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+                <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                    <form class="space-y-6" method="POST">
+                        <span class="text-center text-red-500 text-sm hidden" id="errorMsg"></span>
+                        <div>
+                            <label for="username-input" class="block text-sm font-medium leading-6 text-gray-900">JID</label>
+                            <div class="mt-2">
+                                <input id="username-input" type="text" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-2">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="password-input" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
+                            <div class="mt-2">
+                                <input id="password-input" type="password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-2">
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" id="login-btn">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- component -->
+        <div class="flex h-screen overflow-hidden bg-gray-100 hidden" id="chat-box">
+            <!-- Sidebar -->
+            <div class="w-1/4 bg-white border-r border-gray-300">
+                <!-- Sidebar Header -->
+                <header class="p-4 border-b border-gray-300 flex justify-between items-center bg-indigo-600 text-white">
+                    <h1 class="text-2xl font-semibold" id="loggedInUser"></h1>
+                    <button type="button" id="group-chat">Group Chat</button>
+                </header>
+            
+                <!-- Contact List -->
+                <div class="overflow-y-auto h-screen p-3 mb-9 pb-20" id="online-users-list">  
+                </div>
+            </div>
+            
+            <!-- Main Chat Area -->
+            <div class="flex-1">
+                <!-- Chat Header -->
+                <header class="bg-white p-4 text-gray-700">
+                    <h1 class="text-2xl font-semibold" id="selectedUserChatHeader"></h1>   
+                </header>
+                
+                <!-- Chat Messages -->
+                <div class="h-screen overflow-y-auto p-4 pb-36" id="chat-messages">      
+                </div>
+
+                <!--Group Messages-->
+                <div class="h-screen overflow-y-auto p-4 pb-36" id="group-messages"></div>
+                
+                <!-- Chat Input -->
+                <footer class="bg-white border-t border-gray-300 p-4 absolute bottom-0 w-3/4" id="sendFooter" style="display: none;">
+                    <div class="flex items-center">
+                        <input type="text" placeholder="Type a message..." class="w-full p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500" id="message-input">
+                        <label for="file-input" class="cursor-pointer bg-gray-200 text-gray-700 px-4 py-2 rounded-md ml-2">
+                            <input type="file" id="file-input" class="hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                            </svg> 
+                        </label>
+                        <button class="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2" id="send-message-btn">Send</button>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div> 
+    <script src="script.js"></script>  
+</body>
+</html>
