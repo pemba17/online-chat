@@ -67,7 +67,7 @@ You should see output indicating that your IP address is associated with port 55
 
 ### Client-side Configuration
 
-Download the `index.html` script and make the necessary changes in the file. Open the `<script>` file and update the IP address to match your PC/Laptop's IP address in the highlighted section `<10.13.81.121>`, keeping the port unchanged.
+Download the `index.html` script and make the necessary changes in the file. You can change localhost to your Laptop/PC IP in `server.py` and `script.js`
 
 To find your IP address, use `ipconfig` for Windows or `ifconfig` for Linux, and update it in the script accordingly.
 
