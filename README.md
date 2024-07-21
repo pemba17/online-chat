@@ -88,11 +88,13 @@ Password: test2@s6
 After logging in, the main chat room will appear, showing the online users. In the example below, the users `test1` and `test2` are online.
 
 ![Test 1 Dashboard](./assets/test1-dashboard.png)
+
 ![Test 2 Dashboard](./assets/test2-dashboard.png)
 
 The online chat between two clients is displayed as follows:
 
 ![Test1 Send Message](./assets/test1-send-message.png)
+
 Test 1 sent message to Test 2
 ![Test2 Receive Message](./assets/test2-receive-message.png)
 Test 2 received message from Test 1
